@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lithium-Batterie Spannungstabelle (LiFePO4)</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <meta name="theme-color" content="#1a1f36">
+    <!-- Modern web fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at 50% 0%, #1a1f36 0%, #0d0f1a 100%);
+            --card-bg: rgba(25, 30, 56, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Hue values for traffic light transition */
+            --h-1: 130;
+            --h-2: 123;
+            --h-3: 116;
+            --h-4: 109;
+            --h-5: 102;
+            --h-6: 95;
+            --h-7: 88;
+            --h-8: 81;
+            --h-9: 74;
+            --h-10: 67;
+            --h-11: 60; /* Gelb bei 'Halb voll' */
+            --h-12: 45;
+            --h-13: 30;
+            --h-14: 15;
+            --h-15: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Dashboard Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        /* Glassmorphism Card Style */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.75rem;
+        }
+
+        /* Calculator Widgets */
+        .calc-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .calc-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .input-unit {
+            position: absolute;
+            right: 1rem;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+        }
+
+        .radio-switch {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid var(--card-border);
+        }
+
+        .radio-switch label {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .radio-switch input[type="radio"] {
+            display: none;
+        }
+
+        .radio-switch input[type="radio"]:checked + label {
+            background: #3b82f6;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Battery Visualization */
+        .battery-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .battery-outer {
+            width: 80px;
+            height: 150px;
+            border: 4px solid var(--text-primary);
+            border-radius: 12px;
+            padding: 4px;
+            position: relative;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+        }
+
+        .battery-outer::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 8px;
+            background: var(--text-primary);
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        .battery-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        .battery-level {
+            width: 100%;
+            height: 0%; /* Dynamic */
+            background: #10b981; /* Dynamic color */
+            transition: height 0.5s ease-out, background 0.5s ease;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .battery-stats {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .battery-pct {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .battery-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Styled Table */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(13, 15, 26, 0.8);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        tr {
+            border-bottom: 1px solid var(--card-border);
+            transition: all 0.2s ease;
+        }
+
+        tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .col-voltage {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 1.05rem;
+            white-space: nowrap;
+        }
+
+        .col-pct {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .badge-pct {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        /* Color classes for row transitions */
+        .row-hl-1 { --hue: var(--h-1); }
+        .row-hl-2 { --hue: var(--h-2); }
+        .row-hl-3 { --hue: var(--h-3); }
+        .row-hl-4 { --hue: var(--h-4); }
+        .row-hl-5 { --hue: var(--h-5); }
+        .row-hl-6 { --hue: var(--h-6); }
+        .row-hl-7 { --hue: var(--h-7); }
+        .row-hl-8 { --hue: var(--h-8); }
+        .row-hl-9 { --hue: var(--h-9); }
+        .row-hl-10 { --hue: var(--h-10); }
+        .row-hl-11 { --hue: var(--h-11); }
+        .row-hl-12 { --hue: var(--h-12); }
+        .row-hl-13 { --hue: var(--h-13); }
+        .row-hl-14 { --hue: var(--h-14); }
+        .row-hl-15 { --hue: var(--h-15); }
+
+        .battery-row {
+            border-left: 5px solid transparent;
+            background: hsla(var(--hue), 85%, 45%, 0.04);
+            border-left-color: hsl(var(--hue), 85%, 45%);
+        }
+
+        .battery-row:hover {
+            background: hsla(var(--hue), 85%, 45%, 0.08);
+            transform: scale(1.005);
+        }
+
+        .battery-row.active-row {
+            background: hsla(var(--hue), 85%, 45%, 0.18) !important;
+            box-shadow: inset 0 0 10px hsla(var(--hue), 85%, 45%, 0.15);
+            animation: pulse-border 1.5s infinite alternate;
+        }
+
+        .badge-pct {
+            background: hsla(var(--hue), 85%, 45%, 0.15);
+            color: hsl(var(--hue), 90%, 65%);
+            border: 1px solid hsla(var(--hue), 85%, 45%, 0.3);
+        }
+
+        .col-voltage {
+            color: hsl(var(--hue), 90%, 65%);
+        }
+
+        .desc-text {
+            color: var(--text-primary);
+        }
+
+        .desc-highlight {
+            font-weight: 600;
+            color: #60a5fa;
+            border-bottom: 1px dashed rgba(96, 165, 250, 0.4);
+            cursor: help;
+        }
+
+        /* Help Legend Card */
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-border {
+            from { border-left-width: 5px; }
+            to { border-left-width: 10px; }
+        }
+
+        .info-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LiFePO4 Spannungstabelle</h1>
+            <p>Spannungsverlauf und Ladezustand (SoC) bei 12V LiFePO4 Batterien</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Panel: Interactive Calculator -->
+            <div class="card">
+                <div class="card-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect>
+                        <line x1="22" y1="11" x2="22" y2="13"></line>
+                    </svg>
+                    Live-Statusrechner
+                </div>
+                
+                <div class="calc-group">
+                    <span class="calc-label">Messungstyp</span>
+                    <div class="radio-switch">
+                        <input type="radio" id="type-orig" name="valtype" value="orig" checked>
+                        <label for="type-orig">Original (12V)</label>
+                        <input type="radio" id="type-plus" name="valtype" value="plus">
+                        <label for="type-plus" id="type-plus-label">+0,2 V Spalte</label>
+                    </div>
+                </div>
+
+                <div class="calc-group">
+                    <span class="calc-label">Messabweichung / Offset</span>
+                    <div class="input-wrapper">
+                        <input type="number" id="offset-input" step="0.01" min="-2" max="2" value="0.20">
+                        <span class="input-unit">V</span>
+                    </div>
+                </div>
+
+                <div class="calc-group">
+                    <span class="calc-label">Spannung eingeben</span>
+                    <div class="input-wrapper">
+                        <input type="number" id="volt-input" step="0.01" min="9" max="16" placeholder="z.B. 12.85">
+                        <span class="input-unit">V</span>
+                    </div>
+                </div>
+
+                <div class="battery-container">
+                    <div class="battery-outer">
+                        <div class="battery-inner">
+                            <div id="bat-level" class="battery-level"></div>
+                        </div>
+                    </div>
+                    <div class="battery-stats">
+                        <div id="bat-pct" class="battery-pct">-- %</div>
+                        <div id="bat-status" class="battery-desc">Spannung eingeben</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: The Table -->
+            <div class="card">
+                <div class="card-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M3 3h18v18H3z"></path>
+                        <path d="M21 9H3M21 15H3M12 3v18"></path>
+                    </svg>
+                    Ladezustand & Spannungswerte
+                </div>
+
+                <div class="table-responsive">
+                    <table id="voltage-table">
+                        <thead>
+                            <tr>
+                                <th>Original (12V)</th>
+                                <th id="th-offset">Spalte (+0,20 V)</th>
+                                <th>Kapazität (SoC)</th>
+                                <th>Zustandsbeschreibung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1 -->
+                            <tr class="battery-row row-hl-1" data-v-orig="14.4" data-v-plus="14.6" data-pct="100" data-desc="Absorption, vollgeladen (nur während des Ladens)">
+                                <td class="col-voltage">14,40 V</td>
+                                <td class="col-voltage">14,60 V</td>
+                                <td class="col-pct"><span class="badge-pct">100 %</span></td>
+                                <td class="desc-text"><span class="desc-highlight" title="Ladeendphase bei erhöhter Spannung">Absorption</span>, vollgeladen <span style="font-size:0.85em; color:var(--text-secondary);">(nur Ladevorgang)</span></td>
+                            </tr>
+                            <!-- Row 2 -->
+                            <tr class="battery-row row-hl-2" data-v-orig="13.5" data-v-plus="13.7" data-pct="100" data-desc="Float‑Bereich (Erhaltungsladung)">
+                                <td class="col-voltage">13,60 – 13,40 V</td>
+                                <td class="col-voltage">13,80 – 13,60 V</td>
+                                <td class="col-pct"><span class="badge-pct">100 %</span></td>
+                                <td class="desc-text"><span class="desc-highlight" title="Spannung zur Erhaltungsladung">Float‑Bereich</span> <span style="font-size:0.85em; color:var(--text-secondary);">(wenn Float EIN wäre)</span></td>
+                            </tr>
+                            <!-- Row 3 -->
+                            <tr class="battery-row row-hl-3" data-v-orig="13.4" data-v-plus="13.6" data-pct="100" data-desc="Voll, frisch geladen, Ruhespannung">
+                                <td class="col-voltage">13,40 V</td>
+                                <td class="col-voltage">13,60 V</td>
+                                <td class="col-pct"><span class="badge-pct">100 %</span></td>
+                                <td class="desc-text">Voll, frisch geladen, <span class="desc-highlight" title="Stabilisierte Spannung nach Ladeende ohne Last/Ladung">Ruhespannung</span></td>
+                            </tr>
+                            <!-- Row 4 -->
+                            <tr class="battery-row row-hl-4" data-v-orig="13.3" data-v-plus="13.5" data-pct="95" data-desc="Sehr voll">
+                                <td class="col-voltage">13,30 V</td>
+                                <td class="col-voltage">13,50 V</td>
+                                <td class="col-pct"><span class="badge-pct">95 %</span></td>
+                                <td class="desc-text">Sehr voll</td>
+                            </tr>
+                            <!-- Row 5 -->
+                            <tr class="battery-row row-hl-5" data-v-orig="13.2" data-v-plus="13.4" data-pct="90" data-desc="Hoch geladen">
+                                <td class="col-voltage">13,20 V</td>
+                                <td class="col-voltage">13,40 V</td>
+                                <td class="col-pct"><span class="badge-pct">90 %</span></td>
+                                <td class="desc-text">Hoch geladen</td>
+                            </tr>
+                            <!-- Row 6 -->
+                            <tr class="battery-row row-hl-6" data-v-orig="13.1" data-v-plus="13.3" data-pct="85" data-desc="Hoch geladen">
+                                <td class="col-voltage">13,10 V</td>
+                                <td class="col-voltage">13,30 V</td>
+                                <td class="col-pct"><span class="badge-pct">85 %</span></td>
+                                <td class="desc-text">Hoch geladen</td>
+                            </tr>
+                            <!-- Row 7 -->
+                            <tr class="battery-row row-hl-7" data-v-orig="13.0" data-v-plus="13.2" data-pct="80" data-desc="Oberer Bereich">
+                                <td class="col-voltage">13,00 V</td>
+                                <td class="col-voltage">13,20 V</td>
+                                <td class="col-pct"><span class="badge-pct">80 %</span></td>
+                                <td class="desc-text">Oberer Bereich</td>
+                            </tr>
+                            <!-- Row 8 -->
+                            <tr class="battery-row row-hl-8" data-v-orig="12.9" data-v-plus="13.1" data-pct="75" data-desc="Gut geladen">
+                                <td class="col-voltage">12,90 V</td>
+                                <td class="col-voltage">13,10 V</td>
+                                <td class="col-pct"><span class="badge-pct">75 %</span></td>
+                                <td class="desc-text">Gut geladen</td>
+                            </tr>
+
+                            <!-- Row 9 -->
+                            <tr class="battery-row row-hl-9" data-v-orig="12.8" data-v-plus="13.0" data-pct="67.5" data-desc="Mittlerer Bereich (65-70%)">
+                                <td class="col-voltage">12,80 V</td>
+                                <td class="col-voltage">13,00 V</td>
+                                <td class="col-pct"><span class="badge-pct">65 – 70 %</span></td>
+                                <td class="desc-text">Mittlerer Bereich</td>
+                            </tr>
+                            <!-- Row 10 -->
+                            <tr class="battery-row row-hl-10" data-v-orig="12.7" data-v-plus="12.9" data-pct="60" data-desc="Halb voll">
+                                <td class="col-voltage">12,70 V</td>
+                                <td class="col-voltage">12,90 V</td>
+                                <td class="col-pct"><span class="badge-pct">60 %</span></td>
+                                <td class="desc-text">Halb voll</td>
+                            </tr>
+                            <!-- Row 11 -->
+                            <tr class="battery-row row-hl-11" data-v-orig="12.5" data-v-plus="12.7" data-pct="40" data-desc="Unterer Bereich">
+                                <td class="col-voltage">12,50 V</td>
+                                <td class="col-voltage">12,70 V</td>
+                                <td class="col-pct"><span class="badge-pct">40 %</span></td>
+                                <td class="desc-text">Unterer Bereich</td>
+                            </tr>
+                            <!-- Row 12 -->
+                            <tr class="battery-row row-hl-12" data-v-orig="12.2" data-v-plus="12.4" data-pct="20" data-desc="Sehr leer">
+                                <td class="col-voltage">12,20 V</td>
+                                <td class="col-voltage">12,40 V</td>
+                                <td class="col-pct"><span class="badge-pct">20 %</span></td>
+                                <td class="desc-text">Sehr leer</td>
+                            </tr>
+                            <!-- Row 13 -->
+                            <tr class="battery-row row-hl-13" data-v-orig="12.0" data-v-plus="12.2" data-pct="10" data-desc="Fast leer">
+                                <td class="col-voltage">12,00 V</td>
+                                <td class="col-voltage">12,20 V</td>
+                                <td class="col-pct"><span class="badge-pct">10 %</span></td>
+                                <td class="desc-text">Fast leer</td>
+                            </tr>
+                            <!-- Row 14 -->
+                            <tr class="battery-row row-hl-14" data-v-orig="11.0" data-v-plus="11.2" data-pct="0" data-desc="BMS-Abschaltgefahr (<11.0V)">
+                                <td class="col-voltage">&lt; 11,00 V</td>
+                                <td class="col-voltage">&lt; 11,20 V</td>
+                                <td class="col-pct"><span class="badge-pct">0 %</span></td>
+                                <td class="desc-text" style="color: #ef4444; font-weight: 600;">BMS‑Abschaltgefahr</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: hsl(var(--h-2), 85%, 45%);"></div>
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 500;">Grüner Bereich (100% - 80%)</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Optimal geladen, Betriebsbereit</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: hsl(var(--h-8), 85%, 45%);"></div>
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 500;">Gelber Bereich (75% - 60%)</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Mittlere Ladung, normaler Betrieb</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: hsl(var(--h-13), 85%, 45%);"></div>
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 500;">Roter Bereich (&lt; 40%)</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Leer, bald nachladen erforderlich</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="info-footer">
+            Entwickelt für LiFePO4 Batterien. Die Spannungen sind Richtwerte unter Ruhebedingungen (ohne Last/Ladung für mind. 30 Min).
+        </footer>
+    </div>
+
+    <script>
+        const voltInput = document.getElementById('volt-input');
+        const offsetInput = document.getElementById('offset-input');
+        const batLevel = document.getElementById('bat-level');
+        const batPct = document.getElementById('bat-pct');
+        const batStatus = document.getElementById('bat-status');
+        const tableRows = document.querySelectorAll('.battery-row');
+        const typeRadios = document.getElementsByName('valtype');
+        const thOffset = document.getElementById('th-offset');
+        const typePlusLabel = document.getElementById('type-plus-label');
+
+        // Base voltage data (Original 12V Spalte)
+        const data = [
+            { vOrig: 14.4, pct: 100, hue: varHue('h-1'),  desc: "Absorption, vollgeladen (Ladevorgang)" },
+            { vOrig: 13.5, pct: 100, hue: varHue('h-2'),  desc: "Float-Bereich (Erhaltung)" },
+            { vOrig: 13.4, pct: 100, hue: varHue('h-3'),  desc: "Voll, frisch geladen, Ruhespannung" },
+            { vOrig: 13.3, pct: 95,  hue: varHue('h-4'),  desc: "Sehr voll" },
+            { vOrig: 13.2, pct: 90,  hue: varHue('h-5'),  desc: "Hoch geladen" },
+            { vOrig: 13.1, pct: 85,  hue: varHue('h-6'),  desc: "Hoch geladen" },
+            { vOrig: 13.0, pct: 80,  hue: varHue('h-7'),  desc: "Oberer Bereich" },
+            { vOrig: 12.9, pct: 75,  hue: varHue('h-8'),  desc: "Gut geladen" },
+
+            { vOrig: 12.8, pct: 67.5, hue: varHue('h-10'), desc: "Mittlerer Bereich" },
+            { vOrig: 12.7, pct: 60,  hue: varHue('h-11'), desc: "Halb voll" },
+            { vOrig: 12.5, pct: 40,  hue: varHue('h-12'), desc: "Unterer Bereich" },
+            { vOrig: 12.2, pct: 20,  hue: varHue('h-13'), desc: "Sehr leer" },
+            { vOrig: 12.0, pct: 10,  hue: varHue('h-14'), desc: "Fast leer" },
+            { vOrig: 11.0, pct: 0,   hue: varHue('h-15'), desc: "BMS-Abschaltgefahr" }
+        ];
+
+        function varHue(name) {
+            return parseInt(getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim());
+        }
+
+        function getOffset() {
+            const v = parseFloat(offsetInput.value);
+            return isNaN(v) ? 0.2 : v;
+        }
+
+        function getSelectedType() {
+            for (let radio of typeRadios) {
+                if (radio.checked) return radio.value;
+            }
+            return 'orig';
+        }
+
+        function formatOffset(offset) {
+            const sign = offset >= 0 ? '+' : '';
+            return sign + offset.toFixed(2).replace('.', ',') + ' V';
+        }
+
+        function updateOffsetUI() {
+            const offset = getOffset();
+            const label = formatOffset(offset);
+            thOffset.textContent = `Spalte (${label})`;
+            typePlusLabel.textContent = `${label} Spalte`;
+
+            // Update all plus-column cells in the table
+            tableRows.forEach((row, idx) => {
+                const vOrig = data[idx].vOrig;
+                const vPlus = +(vOrig + offset).toFixed(2);
+                const plusCell = row.querySelectorAll('td.col-voltage')[1];
+                if (plusCell) {
+                    const formatted = vPlus.toFixed(2).replace('.', ',') + ' V';
+                    // Keep < prefix for last row
+                    if (idx === data.length - 1) {
+                        plusCell.textContent = '< ' + (+(data[idx].vOrig + offset).toFixed(2)).toFixed(2).replace('.', ',') + ' V';
+                    } else {
+                        plusCell.textContent = formatted;
+                    }
+                }
+                // Update data-v-plus attribute
+                row.setAttribute('data-v-plus', vPlus);
+            });
+        }
+
+        function updateStatus() {
+            const val = parseFloat(voltInput.value);
+            const offset = getOffset();
+            const isPlus = getSelectedType() === 'plus';
+
+            if (isNaN(val)) {
+                batLevel.style.height = '0%';
+                batPct.textContent = '-- %';
+                batStatus.textContent = 'Spannung eingeben';
+                tableRows.forEach(r => r.classList.remove('active-row'));
+                return;
+            }
+
+            // Find closest item
+            let closestIndex = 0;
+            let minDiff = Infinity;
+
+            data.forEach((item, idx) => {
+                const itemVal = isPlus ? +(item.vOrig + offset).toFixed(4) : item.vOrig;
+                const diff = Math.abs(val - itemVal);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIndex = idx;
+                }
+            });
+
+            const target = data[closestIndex];
+            const displayPct = Math.round(target.pct);
+
+            // Highlight selected row in table
+            tableRows.forEach((row, idx) => {
+                if (idx === closestIndex) {
+                    row.classList.add('active-row');
+                    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    row.classList.remove('active-row');
+                }
+            });
+
+            // Update battery visual level and color
+            batLevel.style.height = displayPct + '%';
+            batLevel.style.background = `hsl(${target.hue}, 90%, 45%)`;
+            batLevel.style.boxShadow = `0 0 15px hsl(${target.hue}, 90%, 45%, 0.4)`;
+
+            // Text updating
+            batPct.textContent = displayPct + ' %';
+            batPct.style.color = `hsl(${target.hue}, 90%, 65%)`;
+            batStatus.textContent = target.desc;
+        }
+
+        // Event listeners
+        voltInput.addEventListener('input', updateStatus);
+        typeRadios.forEach(radio => radio.addEventListener('change', updateStatus));
+        offsetInput.addEventListener('input', () => {
+            updateOffsetUI();
+            updateStatus();
+        });
+
+        // Standardwert: 13 V, Offset: 0.20 V
+        voltInput.value = "13";
+        updateOffsetUI();
+        updateStatus();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered successfully!', reg))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
