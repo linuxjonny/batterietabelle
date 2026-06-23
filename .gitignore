@@ -25,3 +25,13 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Projektdateien (nur static/ wird versioniert)
+agcore/
+algorithms.py
+app.py
+create_workspaces.py
+requirements.txt
+templates/
+test_algorithms.py
+todo.db
