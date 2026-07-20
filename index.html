@@ -1011,7 +1011,7 @@
                     savedIndicator.classList.remove('show');
                 }, 2000);
             } catch (e) {
-                // localStorage may not be available (e.g. private browsing)
+                // localStorage may not be available
             }
         }
 
@@ -1021,6 +1021,30 @@
                 if (stored !== null) {
                     const val = parseFloat(stored);
                     if (!isNaN(val) && val >= -2 && val <= 2) {
+                        return val;
+                    }
+                }
+            } catch (e) {
+                // localStorage not available
+            }
+            return null;
+        }
+
+        // ── localStorage persistence for capacity ──
+        function saveCapacity(capacity) {
+            try {
+                localStorage.setItem('batterie-capacity', capacity.toString());
+            } catch (e) {
+                // localStorage may not be available
+            }
+        }
+
+        function loadCapacity() {
+            try {
+                const stored = localStorage.getItem('batterie-capacity');
+                if (stored !== null) {
+                    const val = parseFloat(stored);
+                    if (!isNaN(val) && val > 0 && val <= 2000) {
                         return val;
                     }
                 }
@@ -1163,6 +1187,8 @@
             updateStatus();
         });
         capInput.addEventListener('input', () => {
+            const capacity = getCapacity();
+            saveCapacity(capacity);
             updateOffsetUI();
             updateStatus();
         });
@@ -1172,6 +1198,12 @@
         const savedOffset = loadOffset();
         if (savedOffset !== null) {
             offsetInput.value = savedOffset.toFixed(2);
+        }
+
+        // Load saved capacity from localStorage
+        const savedCapacity = loadCapacity();
+        if (savedCapacity !== null) {
+            capInput.value = savedCapacity.toString();
         }
 
         // Standardwert: 13 V
