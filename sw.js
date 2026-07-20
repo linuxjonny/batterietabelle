@@ -1,6 +1,6 @@
 const CACHE_NAME = 'battery-soc-v2';
 const ASSETS = [
-  './batterietabelle.html',
+  './index.html',
   './manifest.json',
   './icon.png'
 ];

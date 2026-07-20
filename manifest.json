@@ -2,7 +2,7 @@
   "name": "LiFePO4 Spannungstabelle",
   "short_name": "Batterie SoC",
   "description": "Ladezustand und Spannungstabelle für LiFePO4 Batterien",
-  "start_url": "./batterietabelle.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0d0f1a",
   "theme_color": "#1a1f36",
