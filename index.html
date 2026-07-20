@@ -86,6 +86,17 @@
             font-size: 1.1rem;
         }
 
+        .app-version {
+            display: inline-block;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
         /* Dashboard Layout Grid */
         .dashboard-grid {
             display: grid;
@@ -528,6 +539,7 @@
         <header>
             <h1>LiFePO4 Spannungstabelle</h1>
             <p>Spannungsverlauf und Ladezustand (SoC) bei 12V LiFePO4 Batterien</p>
+            <span class="app-version">v1.1.0</span>
         </header>
 
         <div class="dashboard-grid">
@@ -570,6 +582,14 @@
                     </div>
                 </div>
 
+                <div class="calc-group">
+                    <span class="calc-label">Akkukapazität eingeben</span>
+                    <div class="input-wrapper">
+                        <input type="number" id="cap-input" step="1" min="1" max="2000" value="100">
+                        <span class="input-unit">Ah</span>
+                    </div>
+                </div>
+
                 <div class="battery-container">
                     <div class="battery-visual-row">
                         <div class="battery-outer">
@@ -583,6 +603,7 @@
                     </div>
                     <div class="battery-stats">
                         <div id="bat-pct" class="battery-pct">-- %</div>
+                        <div id="bat-cap-display" style="font-size: 1.25rem; font-weight: 600; color: #60a5fa; margin-top: 0.25rem; font-family: var(--font-mono);">-- Ah</div>
                         <div id="bat-status" class="battery-desc">Spannung eingeben</div>
                     </div>
                 </div>
@@ -606,6 +627,7 @@
                                 <th>Original (12V)</th>
                                 <th id="th-offset">Spalte (+0,20 V)</th>
                                 <th>Kapazität (SoC)</th>
+                                <th id="th-capacity">Restkapazität (100 Ah)</th>
                                 <th>Zustandsbeschreibung</th>
                             </tr>
                         </thead>
@@ -615,6 +637,7 @@
                                 <td class="col-voltage">14,40 V</td>
                                 <td class="col-voltage">14,60 V</td>
                                 <td class="col-pct"><span class="badge-pct">100 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text"><span class="desc-highlight" title="Ladeendphase bei erhöhter Spannung">Absorption</span>, vollgeladen <span style="font-size:0.85em; color:var(--text-secondary);">(nur Ladevorgang)</span></td>
                             </tr>
                             <!-- Row 2 -->
@@ -622,6 +645,7 @@
                                 <td class="col-voltage">13,60 – 13,40 V</td>
                                 <td class="col-voltage">13,80 – 13,60 V</td>
                                 <td class="col-pct"><span class="badge-pct">100 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text"><span class="desc-highlight" title="Spannung zur Erhaltungsladung">Float‑Bereich</span> <span style="font-size:0.85em; color:var(--text-secondary);">(wenn Float EIN wäre)</span></td>
                             </tr>
                             <!-- Row 3 -->
@@ -629,6 +653,7 @@
                                 <td class="col-voltage">13,40 V</td>
                                 <td class="col-voltage">13,60 V</td>
                                 <td class="col-pct"><span class="badge-pct">100 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Voll, frisch geladen, <span class="desc-highlight" title="Stabilisierte Spannung nach Ladeende ohne Last/Ladung">Ruhespannung</span></td>
                             </tr>
                             <!-- Row 4 -->
@@ -636,6 +661,7 @@
                                 <td class="col-voltage">13,30 V</td>
                                 <td class="col-voltage">13,50 V</td>
                                 <td class="col-pct"><span class="badge-pct">95 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Sehr voll</td>
                             </tr>
                             <!-- Row 5 -->
@@ -643,6 +669,7 @@
                                 <td class="col-voltage">13,20 V</td>
                                 <td class="col-voltage">13,40 V</td>
                                 <td class="col-pct"><span class="badge-pct">90 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Hoch geladen</td>
                             </tr>
                             <!-- Row 6 -->
@@ -650,6 +677,7 @@
                                 <td class="col-voltage">13,10 V</td>
                                 <td class="col-voltage">13,30 V</td>
                                 <td class="col-pct"><span class="badge-pct">85 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Hoch geladen</td>
                             </tr>
                             <!-- Row 7 -->
@@ -657,6 +685,7 @@
                                 <td class="col-voltage">13,00 V</td>
                                 <td class="col-voltage">13,20 V</td>
                                 <td class="col-pct"><span class="badge-pct">80 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Oberer Bereich</td>
                             </tr>
                             <!-- Row 8 -->
@@ -664,6 +693,7 @@
                                 <td class="col-voltage">12,90 V</td>
                                 <td class="col-voltage">13,10 V</td>
                                 <td class="col-pct"><span class="badge-pct">75 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Gut geladen</td>
                             </tr>
 
@@ -672,6 +702,7 @@
                                 <td class="col-voltage">12,80 V</td>
                                 <td class="col-voltage">13,00 V</td>
                                 <td class="col-pct"><span class="badge-pct">65 – 70 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Mittlerer Bereich</td>
                             </tr>
                             <!-- Row 10 -->
@@ -679,6 +710,7 @@
                                 <td class="col-voltage">12,70 V</td>
                                 <td class="col-voltage">12,90 V</td>
                                 <td class="col-pct"><span class="badge-pct">60 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Halb voll</td>
                             </tr>
                             <!-- Row 11 -->
@@ -686,6 +718,7 @@
                                 <td class="col-voltage">12,50 V</td>
                                 <td class="col-voltage">12,70 V</td>
                                 <td class="col-pct"><span class="badge-pct">40 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Unterer Bereich</td>
                             </tr>
                             <!-- Row 12 -->
@@ -693,6 +726,7 @@
                                 <td class="col-voltage">12,20 V</td>
                                 <td class="col-voltage">12,40 V</td>
                                 <td class="col-pct"><span class="badge-pct">20 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Sehr leer</td>
                             </tr>
                             <!-- Row 13 -->
@@ -700,6 +734,7 @@
                                 <td class="col-voltage">12,00 V</td>
                                 <td class="col-voltage">12,20 V</td>
                                 <td class="col-pct"><span class="badge-pct">10 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text">Fast leer</td>
                             </tr>
                             <!-- Row 14 -->
@@ -707,6 +742,7 @@
                                 <td class="col-voltage">&lt; 11,00 V</td>
                                 <td class="col-voltage">&lt; 11,20 V</td>
                                 <td class="col-pct"><span class="badge-pct">0 %</span></td>
+                                <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
                                 <td class="desc-text" style="color: #ef4444; font-weight: 600;">BMS‑Abschaltgefahr</td>
                             </tr>
                         </tbody>
@@ -752,15 +788,23 @@
     <script>
         const voltInput = document.getElementById('volt-input');
         const offsetInput = document.getElementById('offset-input');
+        const capInput = document.getElementById('cap-input');
         const batLevel = document.getElementById('bat-level');
         const batPct = document.getElementById('bat-pct');
+        const batCapDisplay = document.getElementById('bat-cap-display');
         const batStatus = document.getElementById('bat-status');
         const tableRows = document.querySelectorAll('.battery-row');
         const typeRadios = document.getElementsByName('valtype');
         const thOffset = document.getElementById('th-offset');
+        const thCapacity = document.getElementById('th-capacity');
         const typePlusLabel = document.getElementById('type-plus-label');
         const savedIndicator = document.getElementById('saved-indicator');
         const stateIllust = document.getElementById('state-illust');
+
+        const APP_VERSION = 'v1.1.0';
+
+        // ... [Rest der SVG Definitionen bleibt identisch, daher hier ausgelassen] ...
+
 
         // ── SVG illustrations for each battery state ──
         // Each illustration represents the visual "mood" of the charge level.
@@ -986,13 +1030,20 @@
             return null;
         }
 
+        function getCapacity() {
+            const c = parseFloat(capInput.value);
+            return isNaN(c) || c <= 0 ? 100 : c;
+        }
+
         function updateOffsetUI() {
             const offset = getOffset();
             const label = formatOffset(offset);
+            const capacity = getCapacity();
             thOffset.textContent = `Spalte (${label})`;
             typePlusLabel.textContent = `${label} Spalte`;
+            thCapacity.textContent = `Restkapazität (${capacity} Ah)`;
 
-            // Update all plus-column cells in the table
+            // Update all plus-column cells and capacity cells in the table
             tableRows.forEach((row, idx) => {
                 const vOrig = data[idx].vOrig;
                 const vPlus = +(vOrig + offset).toFixed(2);
@@ -1005,6 +1056,12 @@
                     } else {
                         plusCell.textContent = formatted;
                     }
+                }
+                // Update capacity cell
+                const capCell = row.querySelector('.col-cap');
+                if (capCell) {
+                    const restCap = (capacity * data[idx].pct / 100).toFixed(1);
+                    capCell.textContent = `${restCap.replace('.', ',')} Ah`;
                 }
                 // Update data-v-plus attribute
                 row.setAttribute('data-v-plus', vPlus);
@@ -1028,10 +1085,12 @@
             const val = parseFloat(voltInput.value);
             const offset = getOffset();
             const isPlus = getSelectedType() === 'plus';
+            const capacity = getCapacity();
 
             if (isNaN(val)) {
                 batLevel.style.height = '0%';
                 batPct.textContent = '-- %';
+                batCapDisplay.textContent = '-- Ah';
                 batStatus.textContent = 'Spannung eingeben';
                 tableRows.forEach(r => r.classList.remove('active-row'));
                 updateIllustration(null);
@@ -1053,6 +1112,7 @@
 
             const target = data[closestIndex];
             const displayPct = Math.round(target.pct);
+            const restCap = (capacity * target.pct / 100).toFixed(1);
 
             // Highlight selected row in table
             tableRows.forEach((row, idx) => {
@@ -1072,6 +1132,7 @@
             // Text updating
             batPct.textContent = displayPct + ' %';
             batPct.style.color = `hsl(${target.hue}, 90%, 65%)`;
+            batCapDisplay.textContent = `${restCap.replace('.', ',')} Ah`;
             batStatus.textContent = target.desc;
 
             // Update illustration
@@ -1098,6 +1159,10 @@
         offsetInput.addEventListener('input', () => {
             const offset = getOffset();
             saveOffset(offset);
+            updateOffsetUI();
+            updateStatus();
+        });
+        capInput.addEventListener('input', () => {
             updateOffsetUI();
             updateStatus();
         });
