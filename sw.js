@@ -1,8 +1,8 @@
-const CACHE_NAME = 'battery-soc-v1';
+const CACHE_NAME = 'battery-soc-v2';
 const ASSETS = [
-  '/batterietabelle.html',
-  '/manifest.json',
-  '/icon.png'
+  './batterietabelle.html',
+  './manifest.json',
+  './icon.png'
 ];
 
 // Install Event
