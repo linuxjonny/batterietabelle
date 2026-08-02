@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lithium-Batterie Spannungstabelle (LiFePO4)</title>
-    <meta name="description" content="Interaktive Spannungstabelle für 12V LiFePO4 Batterien mit Ladezustandsanzeige, Messabweichung und visueller Darstellung.">
+    <meta name="description" content="Interaktive Spannungstabelle für 12V/24V LiFePO4 Batterien mit Ladezustandsanzeige, Messabweichung und visueller Darstellung.">
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./icon.png">
     <meta name="theme-color" content="#1a1f36">
@@ -538,8 +538,8 @@
     <div class="container">
         <header>
             <h1>LiFePO4 Spannungstabelle</h1>
-            <p>Spannungsverlauf und Ladezustand (SoC) bei 12V LiFePO4 Batterien</p>
-            <span class="app-version">v1.1.0</span>
+            <p>Spannungsverlauf und Ladezustand (SoC) bei <span id="header-voltage-label">12V</span> LiFePO4 Batterien</p>
+            <span class="app-version">v1.2.0</span>
         </header>
 
         <div class="dashboard-grid">
@@ -554,10 +554,23 @@
                 </div>
                 
                 <div class="calc-group">
+                    <span class="calc-label">
+                        Akkuspannung
+                        <span id="voltage-saved-indicator" class="saved-indicator">✓ gespeichert</span>
+                    </span>
+                    <div class="radio-switch">
+                        <input type="radio" id="volt-12" name="akkuvolt" value="12" checked>
+                        <label for="volt-12">12V</label>
+                        <input type="radio" id="volt-24" name="akkuvolt" value="24">
+                        <label for="volt-24">24V</label>
+                    </div>
+                </div>
+
+                <div class="calc-group">
                     <span class="calc-label">Messungstyp</span>
                     <div class="radio-switch">
                         <input type="radio" id="type-orig" name="valtype" value="orig" checked>
-                        <label for="type-orig">Original (12V)</label>
+                        <label for="type-orig" id="type-orig-label">Original (12V)</label>
                         <input type="radio" id="type-plus" name="valtype" value="plus">
                         <label for="type-plus" id="type-plus-label">+0,2 V Spalte</label>
                     </div>
@@ -624,10 +637,11 @@
                     <table id="voltage-table">
                         <thead>
                             <tr>
-                                <th>Original (12V)</th>
+                                <th id="th-orig">Original (12V)</th>
                                 <th id="th-offset">Spalte (+0,20 V)</th>
                                 <th>Kapazität (SoC)</th>
                                 <th id="th-capacity">Restkapazität (100 Ah)</th>
+                                <th id="th-watt">Restkapazität (W)</th>
                                 <th>Zustandsbeschreibung</th>
                             </tr>
                         </thead>
@@ -638,6 +652,7 @@
                                 <td class="col-voltage">14,60 V</td>
                                 <td class="col-pct"><span class="badge-pct">100 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text"><span class="desc-highlight" title="Ladeendphase bei erhöhter Spannung">Absorption</span>, vollgeladen <span style="font-size:0.85em; color:var(--text-secondary);">(nur Ladevorgang)</span></td>
                             </tr>
                             <!-- Row 2 -->
@@ -646,6 +661,7 @@
                                 <td class="col-voltage">13,80 – 13,60 V</td>
                                 <td class="col-pct"><span class="badge-pct">100 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text"><span class="desc-highlight" title="Spannung zur Erhaltungsladung">Float‑Bereich</span> <span style="font-size:0.85em; color:var(--text-secondary);">(wenn Float EIN wäre)</span></td>
                             </tr>
                             <!-- Row 3 -->
@@ -654,6 +670,7 @@
                                 <td class="col-voltage">13,60 V</td>
                                 <td class="col-pct"><span class="badge-pct">100 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Voll, frisch geladen, <span class="desc-highlight" title="Stabilisierte Spannung nach Ladeende ohne Last/Ladung">Ruhespannung</span></td>
                             </tr>
                             <!-- Row 4 -->
@@ -662,6 +679,7 @@
                                 <td class="col-voltage">13,50 V</td>
                                 <td class="col-pct"><span class="badge-pct">95 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Sehr voll</td>
                             </tr>
                             <!-- Row 5 -->
@@ -670,6 +688,7 @@
                                 <td class="col-voltage">13,40 V</td>
                                 <td class="col-pct"><span class="badge-pct">90 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Hoch geladen</td>
                             </tr>
                             <!-- Row 6 -->
@@ -678,6 +697,7 @@
                                 <td class="col-voltage">13,30 V</td>
                                 <td class="col-pct"><span class="badge-pct">85 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Hoch geladen</td>
                             </tr>
                             <!-- Row 7 -->
@@ -686,6 +706,7 @@
                                 <td class="col-voltage">13,20 V</td>
                                 <td class="col-pct"><span class="badge-pct">80 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Oberer Bereich</td>
                             </tr>
                             <!-- Row 8 -->
@@ -694,6 +715,7 @@
                                 <td class="col-voltage">13,10 V</td>
                                 <td class="col-pct"><span class="badge-pct">75 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Gut geladen</td>
                             </tr>
 
@@ -703,6 +725,7 @@
                                 <td class="col-voltage">13,00 V</td>
                                 <td class="col-pct"><span class="badge-pct">65 – 70 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Mittlerer Bereich</td>
                             </tr>
                             <!-- Row 10 -->
@@ -711,6 +734,7 @@
                                 <td class="col-voltage">12,90 V</td>
                                 <td class="col-pct"><span class="badge-pct">60 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Halb voll</td>
                             </tr>
                             <!-- Row 11 -->
@@ -719,6 +743,7 @@
                                 <td class="col-voltage">12,70 V</td>
                                 <td class="col-pct"><span class="badge-pct">40 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Unterer Bereich</td>
                             </tr>
                             <!-- Row 12 -->
@@ -727,6 +752,7 @@
                                 <td class="col-voltage">12,40 V</td>
                                 <td class="col-pct"><span class="badge-pct">20 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Sehr leer</td>
                             </tr>
                             <!-- Row 13 -->
@@ -735,6 +761,7 @@
                                 <td class="col-voltage">12,20 V</td>
                                 <td class="col-pct"><span class="badge-pct">10 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text">Fast leer</td>
                             </tr>
                             <!-- Row 14 -->
@@ -743,6 +770,7 @@
                                 <td class="col-voltage">&lt; 11,20 V</td>
                                 <td class="col-pct"><span class="badge-pct">0 %</span></td>
                                 <td class="col-cap" style="font-family: var(--font-mono); font-weight: 500;">-- Ah</td>
+                                <td class="col-watt" style="font-family: var(--font-mono); font-weight: 500;">-- W</td>
                                 <td class="desc-text" style="color: #ef4444; font-weight: 600;">BMS‑Abschaltgefahr</td>
                             </tr>
                         </tbody>
@@ -795,13 +823,19 @@
         const batStatus = document.getElementById('bat-status');
         const tableRows = document.querySelectorAll('.battery-row');
         const typeRadios = document.getElementsByName('valtype');
+        const akkuVoltRadios = document.getElementsByName('akkuvolt');
+        const thOrig = document.getElementById('th-orig');
         const thOffset = document.getElementById('th-offset');
         const thCapacity = document.getElementById('th-capacity');
+        const thWatt = document.getElementById('th-watt');
+        const typeOrigLabel = document.getElementById('type-orig-label');
         const typePlusLabel = document.getElementById('type-plus-label');
         const savedIndicator = document.getElementById('saved-indicator');
+        const voltageSavedIndicator = document.getElementById('voltage-saved-indicator');
+        const headerVoltageLabel = document.getElementById('header-voltage-label');
         const stateIllust = document.getElementById('state-illust');
 
-        const APP_VERSION = 'v1.1.0';
+        const APP_VERSION = 'v1.2.0';
 
         // ... [Rest der SVG Definitionen bleibt identisch, daher hier ausgelassen] ...
 
@@ -1054,6 +1088,57 @@
             return null;
         }
 
+        // ── localStorage persistence for battery voltage (12V/24V) ──
+        function saveAkkuVoltage(voltage) {
+            try {
+                localStorage.setItem('batterie-akkuvolt', voltage.toString());
+                voltageSavedIndicator.classList.add('show');
+                clearTimeout(saveAkkuVoltage._timer);
+                saveAkkuVoltage._timer = setTimeout(() => {
+                    voltageSavedIndicator.classList.remove('show');
+                }, 2000);
+            } catch (e) {}
+        }
+
+        function loadAkkuVoltage() {
+            try {
+                const stored = localStorage.getItem('batterie-akkuvolt');
+                if (stored === '12' || stored === '24') return parseInt(stored);
+            } catch (e) {}
+            return 12; // default
+        }
+
+        function getAkkuVoltage() {
+            for (let radio of akkuVoltRadios) {
+                if (radio.checked) return parseInt(radio.value);
+            }
+            return 12;
+        }
+
+        // ── localStorage persistence for selected row ──
+        function saveSelectedRow(index) {
+            try {
+                localStorage.setItem('batterie-selected-row', index.toString());
+            } catch (e) {}
+        }
+
+        function loadSelectedRow() {
+            try {
+                const stored = localStorage.getItem('batterie-selected-row');
+                if (stored !== null) {
+                    const val = parseInt(stored);
+                    if (!isNaN(val) && val >= 0 && val < data.length) return val;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function clearSelectedRow() {
+            try {
+                localStorage.removeItem('batterie-selected-row');
+            } catch (e) {}
+        }
+
         function getCapacity() {
             const c = parseFloat(capInput.value);
             return isNaN(c) || c <= 0 ? 100 : c;
@@ -1063,31 +1148,62 @@
             const offset = getOffset();
             const label = formatOffset(offset);
             const capacity = getCapacity();
+            const akkuVolt = getAkkuVoltage();
+            const voltMultiplier = akkuVolt / 12;
+
+            // Update header labels
+            thOrig.textContent = `Original (${akkuVolt}V)`;
             thOffset.textContent = `Spalte (${label})`;
+            typeOrigLabel.textContent = `Original (${akkuVolt}V)`;
             typePlusLabel.textContent = `${label} Spalte`;
             thCapacity.textContent = `Restkapazität (${capacity} Ah)`;
+            thWatt.textContent = `Restkapazität (W)`;
+            headerVoltageLabel.textContent = `${akkuVolt}V`;
 
-            // Update all plus-column cells and capacity cells in the table
+            // Update all voltage, capacity, and watt cells in the table
             tableRows.forEach((row, idx) => {
-                const vOrig = data[idx].vOrig;
-                const vPlus = +(vOrig + offset).toFixed(2);
+                const vOrig12 = data[idx].vOrig;
+                const vOrigScaled = +(vOrig12 * voltMultiplier).toFixed(2);
+                const vPlus = +(vOrigScaled + offset).toFixed(2);
+
+                const origCell = row.querySelectorAll('td.col-voltage')[0];
                 const plusCell = row.querySelectorAll('td.col-voltage')[1];
-                if (plusCell) {
-                    const formatted = vPlus.toFixed(2).replace('.', ',') + ' V';
-                    // Keep < prefix for last row
+
+                // Update original voltage cell
+                if (origCell) {
                     if (idx === data.length - 1) {
-                        plusCell.textContent = '< ' + (+(data[idx].vOrig + offset).toFixed(2)).toFixed(2).replace('.', ',') + ' V';
+                        origCell.textContent = '< ' + vOrigScaled.toFixed(2).replace('.', ',') + ' V';
                     } else {
-                        plusCell.textContent = formatted;
+                        origCell.textContent = vOrigScaled.toFixed(2).replace('.', ',') + ' V';
                     }
                 }
-                // Update capacity cell
+
+                // Update plus/offset voltage cell
+                if (plusCell) {
+                    if (idx === data.length - 1) {
+                        plusCell.textContent = '< ' + vPlus.toFixed(2).replace('.', ',') + ' V';
+                    } else {
+                        plusCell.textContent = vPlus.toFixed(2).replace('.', ',') + ' V';
+                    }
+                }
+
+                // Update capacity cell (Ah)
                 const capCell = row.querySelector('.col-cap');
                 if (capCell) {
                     const restCap = (capacity * data[idx].pct / 100).toFixed(1);
                     capCell.textContent = `${restCap.replace('.', ',')} Ah`;
                 }
-                // Update data-v-plus attribute
+
+                // Update watt cell (Ah × nominal voltage)
+                const wattCell = row.querySelector('.col-watt');
+                if (wattCell) {
+                    const restCapAh = capacity * data[idx].pct / 100;
+                    const watt = (restCapAh * akkuVolt).toFixed(0);
+                    wattCell.textContent = `${watt} W`;
+                }
+
+                // Update data attributes for row click
+                row.setAttribute('data-v-orig', vOrigScaled);
                 row.setAttribute('data-v-plus', vPlus);
             });
         }
@@ -1110,6 +1226,8 @@
             const offset = getOffset();
             const isPlus = getSelectedType() === 'plus';
             const capacity = getCapacity();
+            const akkuVolt = getAkkuVoltage();
+            const voltMultiplier = akkuVolt / 12;
 
             if (isNaN(val)) {
                 batLevel.style.height = '0%';
@@ -1118,15 +1236,17 @@
                 batStatus.textContent = 'Spannung eingeben';
                 tableRows.forEach(r => r.classList.remove('active-row'));
                 updateIllustration(null);
+                clearSelectedRow();
                 return;
             }
 
-            // Find closest item
+            // Find closest item (scale base 12V data to selected voltage)
             let closestIndex = 0;
             let minDiff = Infinity;
 
             data.forEach((item, idx) => {
-                const itemVal = isPlus ? +(item.vOrig + offset).toFixed(4) : item.vOrig;
+                const scaledOrig = +(item.vOrig * voltMultiplier).toFixed(4);
+                const itemVal = isPlus ? +(scaledOrig + offset).toFixed(4) : scaledOrig;
                 const diff = Math.abs(val - itemVal);
                 if (diff < minDiff) {
                     minDiff = diff;
@@ -1138,7 +1258,7 @@
             const displayPct = Math.round(target.pct);
             const restCap = (capacity * target.pct / 100).toFixed(1);
 
-            // Highlight selected row in table
+            // Highlight selected row in table & save selection
             tableRows.forEach((row, idx) => {
                 if (idx === closestIndex) {
                     row.classList.add('active-row');
@@ -1147,6 +1267,7 @@
                     row.classList.remove('active-row');
                 }
             });
+            saveSelectedRow(closestIndex);
 
             // Update battery visual level and color
             batLevel.style.height = displayPct + '%';
@@ -1168,11 +1289,15 @@
             row.addEventListener('click', () => {
                 const offset = getOffset();
                 const isPlus = getSelectedType() === 'plus';
+                const akkuVolt = getAkkuVoltage();
+                const voltMultiplier = akkuVolt / 12;
+                const scaledOrig = +(data[idx].vOrig * voltMultiplier).toFixed(2);
                 const voltage = isPlus
-                    ? +(data[idx].vOrig + offset).toFixed(2)
-                    : data[idx].vOrig;
+                    ? +(scaledOrig + offset).toFixed(2)
+                    : scaledOrig;
 
                 voltInput.value = voltage;
+                saveSelectedRow(idx);
                 updateStatus();
             });
         });
@@ -1192,6 +1317,11 @@
             updateOffsetUI();
             updateStatus();
         });
+        akkuVoltRadios.forEach(radio => radio.addEventListener('change', () => {
+            saveAkkuVoltage(getAkkuVoltage());
+            updateOffsetUI();
+            updateStatus();
+        }));
 
         // ── Initialization ──
         // Load saved offset from localStorage
@@ -1206,8 +1336,26 @@
             capInput.value = savedCapacity.toString();
         }
 
-        // Standardwert: 13 V
-        voltInput.value = "13";
+        // Load saved battery voltage (12V/24V)
+        const savedAkkuVolt = loadAkkuVoltage();
+        akkuVoltRadios.forEach(radio => {
+            radio.checked = parseInt(radio.value) === savedAkkuVolt;
+        });
+
+        // Load saved selected row, or default to 13V equivalent
+        const savedRow = loadSelectedRow();
+        if (savedRow !== null) {
+            // Restore voltage from saved row
+            const offset = getOffset();
+            const isPlus = getSelectedType() === 'plus';
+            const voltMultiplier = savedAkkuVolt / 12;
+            const scaledOrig = +(data[savedRow].vOrig * voltMultiplier).toFixed(2);
+            voltInput.value = isPlus ? +(scaledOrig + offset).toFixed(2) : scaledOrig;
+        } else {
+            // Standardwert: 13 V (scaled for voltage)
+            voltInput.value = (13 * savedAkkuVolt / 12).toFixed(2);
+        }
+
         updateOffsetUI();
         updateStatus();
     </script>
