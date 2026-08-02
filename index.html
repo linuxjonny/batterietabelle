@@ -1088,6 +1088,21 @@
             return null;
         }
 
+        // ── localStorage persistence for measurement type (orig/plus) ──
+        function saveMessungstyp(type) {
+            try {
+                localStorage.setItem('batterie-messungstyp', type);
+            } catch (e) {}
+        }
+
+        function loadMessungstyp() {
+            try {
+                const stored = localStorage.getItem('batterie-messungstyp');
+                if (stored === 'orig' || stored === 'plus') return stored;
+            } catch (e) {}
+            return 'orig'; // default
+        }
+
         // ── localStorage persistence for battery voltage (12V/24V) ──
         function saveAkkuVoltage(voltage) {
             try {
@@ -1304,7 +1319,10 @@
 
         // Event listeners
         voltInput.addEventListener('input', updateStatus);
-        typeRadios.forEach(radio => radio.addEventListener('change', updateStatus));
+        typeRadios.forEach(radio => radio.addEventListener('change', () => {
+            saveMessungstyp(getSelectedType());
+            updateStatus();
+        }));
         offsetInput.addEventListener('input', () => {
             const offset = getOffset();
             saveOffset(offset);
@@ -1340,6 +1358,12 @@
         const savedAkkuVolt = loadAkkuVoltage();
         akkuVoltRadios.forEach(radio => {
             radio.checked = parseInt(radio.value) === savedAkkuVolt;
+        });
+
+        // Load saved measurement type (orig/plus)
+        const savedType = loadMessungstyp();
+        typeRadios.forEach(radio => {
+            radio.checked = radio.value === savedType;
         });
 
         // Load saved selected row, or default to 13V equivalent
